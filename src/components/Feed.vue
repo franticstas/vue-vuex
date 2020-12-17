@@ -5,28 +5,46 @@
     <div v-if="error">Somethig bad happened</div>
 
     <div v-if="feed">
-      <div class="article-preview" v-for="(article, index) in feed.articles" :key="index">
+      <div
+        class="article-preview"
+        v-for="(article, index) in feed.articles"
+        :key="index"
+      >
         <div class="article-meta">
-          <router-link :to="{name: 'userProfile', params: {slug: article.author.username}}">
+          <router-link
+            :to="{name: 'userProfile', params: {slug: article.author.username}}"
+          >
             <img :src="article.author.image" />
           </router-link>
           <div class="info">
             <router-link
-              :to="{name: 'userProfile', params: {slug: article.author.username}}"
+              :to="{
+                name: 'userProfile',
+                params: {slug: article.author.username}
+              }"
               class="author"
-            >{{article.author.username}}</router-link>
-            <span class="date">{{article.createdAt}}</span>
+              >{{ article.author.username }}</router-link
+            >
+            <span class="date">{{ article.createdAt }}</span>
           </div>
           <div class="pull-xs-right">ADD TO FAVORITES</div>
         </div>
-        <router-link :to="{name: 'article', params: {slug: article.slug}}" class="preview-link">
-          <h1>{{article.title}}</h1>
-          <p>{{article.description}}</p>
+        <router-link
+          :to="{name: 'article', params: {slug: article.slug}}"
+          class="preview-link"
+        >
+          <h1>{{ article.title }}</h1>
+          <p>{{ article.description }}</p>
           <span>Read more...</span>
           TAG LIST
         </router-link>
       </div>
-      <mcv-pagination :total="total" :limit="limit" :current-page="currentPage" :url="url" />
+      <mcv-pagination
+        :total="feed.articlesCount"
+        :limit="limit"
+        :current-page="currentPage"
+        :url="baseUrl"
+      />
     </div>
   </div>
 </template>
@@ -35,6 +53,8 @@
 import {actionTypes} from '@/store/modules/feed';
 import {mapState} from 'vuex';
 import McvPagination from '@/components/Pagination';
+import {limit} from '@/helpers/vars';
+import {stringify, parseUrl} from 'query-string';
 
 export default {
   name: 'McvFeed',
@@ -49,10 +69,7 @@ export default {
   },
   data() {
     return {
-      total: 500,
-      limit: 10,
-      currentPage: 5,
-      url: '/tags/dragons'
+      limit
     };
   },
   computed: {
@@ -60,11 +77,38 @@ export default {
       isLoading: state => state.feed.isLoading,
       feed: state => state.feed.data,
       error: state => state.feed.error
-    })
+    }),
+    currentPage() {
+      return Number(this.$route.query.page || '1');
+    },
+    baseUrl() {
+      return this.$route.path;
+    },
+    offset() {
+      return this.currentPage * limit - limit;
+    }
+  },
+  watch: {
+    currentPage() {
+      this.fetchFeed();
+    }
   },
   mounted() {
     console.log('init feed');
-    this.$store.dispatch(actionTypes.getFeed, {apiUrl: this.apiUrl});
+    this.fetchFeed();
+  },
+  methods: {
+    fetchFeed() {
+      const parsedUrl = parseUrl(this.apiUrl);
+      const stringifieldParams = stringify({
+        limit,
+        offset: this.offset,
+        ...parsedUrl.query
+      });
+      const apiUrlWithParams = `${parsedUrl.url}?${stringifieldParams}`;
+      console.log(apiUrlWithParams);
+      this.$store.dispatch(actionTypes.getFeed, {apiUrl: apiUrlWithParams});
+    }
   }
 };
 </script>
