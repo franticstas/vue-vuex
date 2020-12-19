@@ -1,19 +1,12 @@
 <template>
   <div>
-    <div v-if="isLoading">Loading...</div>
-
-    <div v-if="error">Somethig bad happened</div>
+    <mcv-loading v-if="isLoading" />
+    <mcv-error-message v-if="error" />
 
     <div v-if="feed">
-      <div
-        class="article-preview"
-        v-for="(article, index) in feed.articles"
-        :key="index"
-      >
+      <div class="article-preview" v-for="(article, index) in feed.articles" :key="index">
         <div class="article-meta">
-          <router-link
-            :to="{name: 'userProfile', params: {slug: article.author.username}}"
-          >
+          <router-link :to="{name: 'userProfile', params: {slug: article.author.username}}">
             <img :src="article.author.image" />
           </router-link>
           <div class="info">
@@ -23,16 +16,12 @@
                 params: {slug: article.author.username}
               }"
               class="author"
-              >{{ article.author.username }}</router-link
-            >
+            >{{ article.author.username }}</router-link>
             <span class="date">{{ article.createdAt }}</span>
           </div>
           <div class="pull-xs-right">ADD TO FAVORITES</div>
         </div>
-        <router-link
-          :to="{name: 'article', params: {slug: article.slug}}"
-          class="preview-link"
-        >
+        <router-link :to="{name: 'article', params: {slug: article.slug}}" class="preview-link">
           <h1>{{ article.title }}</h1>
           <p>{{ article.description }}</p>
           <span>Read more...</span>
@@ -55,6 +44,8 @@ import {mapState} from 'vuex';
 import McvPagination from '@/components/Pagination';
 import {limit} from '@/helpers/vars';
 import {stringify, parseUrl} from 'query-string';
+import McvLoading from '@/components/Loading';
+import McvErrorMessage from '@/components/ErrorMessage';
 
 export default {
   name: 'McvFeed',
@@ -65,7 +56,9 @@ export default {
     }
   },
   components: {
-    McvPagination
+    McvPagination,
+    McvLoading,
+    McvErrorMessage
   },
   data() {
     return {
