@@ -8,7 +8,7 @@ const state = {
 
 export const mutationTypes = {
   getPopularTagsStart: '[popularTags] Get popular tags start',
-  getPopularTagsSuccsess: '[popularTags] Get popular tags success',
+  getPopularTagsSuccess: '[popularTags] Get popular tags success',
   getPopularTagsFailure: '[popularTags] Get popular tags failure'
 };
 
@@ -21,7 +21,7 @@ const mutations = {
     state.isLoading = true;
     state.data = null;
   },
-  [mutationTypes.getPopularTagsSuccsess](state, payload) {
+  [mutationTypes.getPopularTagsSuccess](state, payload) {
     state.isLoading = false;
     state.data = payload;
   },
@@ -37,7 +37,7 @@ const actions = {
       popularTagsApi
         .getPopularTags()
         .then(tags => {
-          context.commit(mutationTypes.getPopularTagsSuccsess, tags);
+          context.commit(mutationTypes.getPopularTagsSuccess, tags);
           resolve(tags);
         })
         .catch(() => {
