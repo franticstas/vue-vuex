@@ -20,13 +20,18 @@ export const mutationTypes = {
 
   getCurrentUserStart: '[auth] getCurrentUserStart',
   getCurrentUserSuccess: '[auth] getCurrentUserSuccess',
-  getCurrentUserFailure: '[auth] getCurrentUserFailure'
+  getCurrentUserFailure: '[auth] getCurrentUserFailure',
+
+  updateCurrentUserStart: '[auth] updateCurrentUserStart',
+  updateCurrentUserSuccess: '[auth] updateCurrentUserSuccess',
+  updateCurrentUserFailure: '[auth] updateCurrentUserFailure'
 };
 
 export const actionTypes = {
   register: '[auth] register',
   login: '[auth] login',
-  getCurrentUser: '[auth] getCurrentUser'
+  getCurrentUser: '[auth] getCurrentUser',
+  updateCurrentUser: '[auth] updateCurrentUser'
 };
 
 export const getterTypes = {
@@ -86,7 +91,12 @@ const mutations = {
     state.isLoading = false;
     state.currentUser = null;
     state.isLoggedIn = false;
-  }
+  },
+  [mutationTypes.updateCurrentUserStart]() {},
+  [mutationTypes.updateCurrentUserSuccess](state, payload) {
+    state.currentUser = payload;
+  },
+  [mutationTypes.updateCurrentUserFailure]() {}
 };
 
 const actions = {
@@ -140,6 +150,23 @@ const actions = {
         })
         .catch(() => {
           context.commit(mutationTypes.getCurrentUserFailure);
+        });
+    });
+  },
+  [actionTypes.updateCurrentUser](context, {currentUserInput}) {
+    return new Promise(resolve => {
+      context.commit(mutationTypes.updateCurrentUserStart);
+      authApi
+        .updateCurrentUser(currentUserInput)
+        .then(user => {
+          context.commit(mutationTypes.updateCurrentUserSuccess, user);
+          resolve(user);
+        })
+        .catch(result => {
+          context.commit(
+            mutationTypes.updateCurrentUserFailure,
+            result.response.data.errors
+          );
         });
     });
   }
